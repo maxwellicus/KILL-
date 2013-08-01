@@ -41,9 +41,11 @@ class Player(pygame.sprite.Sprite):
 
    def revert(self):
        self.health = 5
+       self.mana = 3
        self.money = 0
        self.score = 0
        self.maxHealth = 5
+       self.maxMana = 3
        self.speed = 3
        self.refireRate = 2
        self.numberOfShots = 1
@@ -83,7 +85,7 @@ class Money(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.Font(None, 40)
         self.font.set_italic(1)
-        self.color = Color('green')
+        self.color = Color('gold')
         self.money=0
 
     def update(self, change):
@@ -107,7 +109,7 @@ class Health(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.Font(None, 40)
         self.font.set_italic(1)
-        self.color = Color('blue')
+        self.color = Color('green')
         self.health=3
         self.maxHealth=3
 
@@ -124,6 +126,31 @@ class Health(pygame.sprite.Sprite):
         self.font = pygame.font.Font(None, 100)
         msg = "Health: %d/%d" % (self.owner.health, self.owner.maxHealth)
         self.rect = self.image.get_rect().move(600, 400)
+        self.image = self.font.render(msg, 0, self.color)
+
+class Mana(pygame.sprite.Sprite):
+    def __init__(self, owner):
+        self.owner = owner
+        pygame.sprite.Sprite.__init__(self)
+        self.font = pygame.font.Font(None, 40)
+        self.font.set_italic(1)
+        self.color = Color('blue')
+        self.mana=3
+        self.maxmana=3
+
+    def update(self,change):
+        self.owner.mana+=change
+
+    def show(self):
+        self.font = pygame.font.Font(None, 40)
+        msg = "Mana: %d/%d" % (self.owner.mana,self.owner.maxMana)
+        self.image = self.font.render(msg, 0, self.color)
+        self.rect = self.image.get_rect().move(10, 410)
+
+    def post(self):
+        self.font = pygame.font.Font(None, 100)
+        msg = "Mana: %d/%d" % (self.owner.mana, self.owner.maxMana)
+        self.rect = self.image.get_rect().move(600, 500)
         self.image = self.font.render(msg, 0, self.color)
 
 class Crosshair(pygame.sprite.Sprite):
@@ -619,6 +646,9 @@ class Explosion(pygame.sprite.Sprite):
             self.kill()
 
 
+class Magic(pygame.sprite.Sprite):
+    
+
 class costImage(pygame.sprite.Sprite):
     def __init__(self, x, y):
         pygame.sprite.Sprite.__init__(self)
@@ -959,6 +989,7 @@ def main():
    score = Score(player)
    money = Money(player)
    health = Health(player)
+   mana = Mana(player)
    bullet = Bullet(-100,-100,-100,-100,1)
    enemyBullet = EnemyBullet(-100,-100,-100,-100,1)
 
@@ -1097,10 +1128,11 @@ def main():
           score.show()
           money.show()
           health.show()
+          mana.show()
 
        #Draw Everything
           bottomsprites = pygame.sprite.RenderPlain((player, bullets, enemies, splatters, explosions, enemyBullets))
-          topSprite = pygame.sprite.RenderPlain((crosshair, score, money, health))
+          topSprite = pygame.sprite.RenderPlain((crosshair, score, money, health, mana))
           screen.blit(background_surface, (0,0))
           bottomsprites.draw(screen)
           topSprite.draw(screen)
@@ -1123,8 +1155,9 @@ def main():
              health.show()
              money.show()
              score.show()
+             money.show()
              screen.blit(pauseBackground_surface, (0,0))
-             bottomsprites = pygame.sprite.RenderPlain((upgrades, costs, score, money, health))
+             bottomsprites = pygame.sprite.RenderPlain((upgrades, costs, score, money, health, mana))
              bottomsprites.draw(screen)
              topSprite = pygame.sprite.RenderPlain((crosshair))
              topSprite.draw(screen)
@@ -1137,9 +1170,10 @@ def main():
              score.post()
              money.post()
              health.post()
+             mana.post()
              bottomSprites = pygame.sprite.RenderPlain((bullets,enemies,splatters,explosions))
              mediumSprites = pygame.sprite.RenderPlain((player))
-             topSprites = pygame.sprite.RenderPlain((score,money,health,mainMenu))
+             topSprites = pygame.sprite.RenderPlain((score,money,health,mana,mainMenu))
              crosshairSprite = pygame.sprite.RenderPlain((crosshair))
              screen.blit(background_surface, (0,0))
              bottomSprites.draw(screen)
