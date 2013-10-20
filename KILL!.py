@@ -50,6 +50,8 @@ class Player(pygame.sprite.Sprite):
        self.refireRate = 2
        self.numberOfShots = 1
        self.healthRegen = 1
+       self.manaRegen = 1
+       self.spell=3
        self.rect.centerx, self.rect.centery = 600, 300
        
    def update(self, x, y):
@@ -110,8 +112,8 @@ class Health(pygame.sprite.Sprite):
         self.font = pygame.font.Font(None, 40)
         self.font.set_italic(1)
         self.color = Color('green')
-        self.health=3
-        self.maxHealth=3
+        #self.health=3
+        #self.maxHealth=3
 
     def update(self,change):
         self.owner.health += change
@@ -260,7 +262,7 @@ class Zombie(Enemy):
 class Runner(Enemy):
     """ basic Runner enemy """
     health = 1
-    speed = 9
+    speed = 7
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('runner.png', -1)
@@ -269,7 +271,7 @@ class Runner(Enemy):
 class BombDude(Enemy):
     """ basic Runner enemy """
     health = 1
-    speed = 4
+    speed = 2
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('bombDude.png', -1)
@@ -409,7 +411,7 @@ class Seeker(Enemy):
             
 
 class PregnantBitch(Enemy):
-    health = 10
+    health = 5
     speed = 2
     
     def __init__(self,spawnx,spawny):
@@ -429,14 +431,14 @@ class PregnantBitch(Enemy):
 
 class Baby(Enemy):
     health = 1
-    speed = 20
+    speed = 15
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('baby.png', -1)
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
 class BlobLarge(Enemy):
-    health = 9
+    health = 5
     speed = 2
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
@@ -476,7 +478,7 @@ class BlobSmall(Enemy):
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
 class BulletTurret(Enemy):
-    health = 10
+    health = 5
     speed = 0
     
     def __init__(self,spawnx,spawny):
@@ -499,7 +501,7 @@ class BulletTurret(Enemy):
             enemyBullets.add(Bullet(self.rect.centerx, self.rect.centery, playerx, playery, angle))
 
 class RocketTurret(Enemy):
-    health = 10
+    health = 5
     speed = 0
     
     def __init__(self,spawnx,spawny):
@@ -523,7 +525,7 @@ class RocketTurret(Enemy):
 
 class Rocket (Enemy):
     health = 1
-    speed = 10
+    speed = 7
 
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
@@ -536,7 +538,7 @@ class Rocket (Enemy):
 class EnemyBullet(pygame.sprite.Sprite):
     penetration = 1
     damage = 1
-    speed = 20
+    speed = 15
     
     def __init__(self, turretx, turrety, playerx, playery, angle):
         pygame.sprite.Sprite.__init__(self)
@@ -645,9 +647,134 @@ class Explosion(pygame.sprite.Sprite):
         if self.life <= 0:
             self.kill()
 
-
 class Magic(pygame.sprite.Sprite):
+    """ super class for all magic """
+    level = 0
+    pictures = []
     
+    def __init__(self, owner, costsGroup):
+        pygame.sprite.Sprite.__init__(self)
+        self.costsGroup = costsGroup
+        self.owner = owner
+        self.owner.spell=3
+
+    #def show(self):
+        #self.image, self.rect = load_image('airStrike.png')
+        #self.rect.topleft = 220, 340
+        #self.costSprite.costDisplay(self.price, self.level)
+
+    def chooseSpell(self,airstrike,heal,teleport,crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions):
+        if player.mana>0:
+            if self.owner.spell==1:
+                airstrike.use(crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions)
+            elif self.owner.spell==2 and player.health<player.maxHealth:
+                heal.use(crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions)    
+            elif self.owner.spell==3:
+                teleport.use(crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions)
+
+
+class AirStrikeMagic(Magic):
+    price=10
+    def __init__(self, owner, costsGroup):
+        super(AirStrikeMagic, self).__init__(owner, costsGroup)
+        self.costSprite = costImage(220, 310)
+        self.costSprite.costDisplay(self.price, self.level)
+        self.costSprite.add(self.costsGroup)
+        self.show()
+
+    def equip(self):
+        self.owner.spell=1
+        self.show()
+        #self.rect.topleft = 220, 340
+        #explosion = load_sound('explosion.wav')
+        #explosion.play()
+
+    def use(self,crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions):
+        mana.update(-1)
+        explosions.add(Explosion(crosshair.rect.centerx, crosshair.rect.centery,player,score,money,health,enemy,enemies,splatters,explosions))
+
+    def show(self):
+        if self.owner.spell==1:
+            self.image, self.rect = load_image('airStrike.eqipped.png')
+        else:
+            self.image, self.rect = load_image('airStrike.png')
+        self.rect.topleft = 220, 340
+        self.costSprite.costDisplay(self.price, self.level)
+
+    #def revert(self):
+        #self.level=0
+        #self.price=10
+        #self.show()
+        #self.rect.topleft = 10, 40
+
+    #def upgrade(self):
+        #try:
+            #if self.owner.money >= self.price:
+                #self.level+=1
+                #self.owner.money -= self.price
+                #self.price *= 2
+                #self.show()
+                #self.owner.health += 1
+                #self.owner.maxHealth += 1
+                #self.rect.topleft = 10, 40
+        #except StopIteration:
+            #return
+
+    #def costDisplay(self):
+        #super(maxHealthUpgrade, self).costDisplay()
+        #self.image = self.font.render(self.msg, 0, self.color)
+        #self.rect = self.image.get_rect().move(500, 500)
+
+class HealMagic(Magic):
+    price=10
+    def __init__(self, owner, costsGroup):
+        super(HealMagic, self).__init__(owner, costsGroup)
+        self.costSprite = costImage(430, 310)
+        self.costSprite.costDisplay(self.price, self.level)
+        self.costSprite.add(self.costsGroup)
+        self.show()
+
+    def equip(self):
+        self.owner.spell=2
+        self.show()
+
+    def use(self,crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions):
+        mana.update(-1)
+        health.update(1)
+
+    def show(self):
+        if self.owner.spell==2:
+            self.image, self.rect = load_image('heal.equipped.png')
+        else:
+            self.image, self.rect = load_image('heal.png')
+        self.rect.topleft = 430, 340
+        self.costSprite.costDisplay(self.price, self.level)
+
+class TeleportMagic(Magic):
+    price=10
+    def __init__(self, owner, costsGroup):
+        super(TeleportMagic, self).__init__(owner, costsGroup)
+        self.costSprite = costImage(640, 310)
+        self.costSprite.costDisplay(self.price, self.level)
+        self.costSprite.add(self.costsGroup)
+        self.show()
+
+    def equip(self):
+        self.owner.spell=3
+        self.show()
+
+    def use(self,crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions):
+        mana.update(-1)
+        player.rect.centerx=crosshair.rect.centerx
+        player.rect.centery=crosshair.rect.centery
+
+    def show(self):
+        if self.owner.spell==3:
+            self.image, self.rect = load_image('teleport.equipped.png')
+        else:
+            self.image, self.rect = load_image('teleport.png')
+        self.rect.topleft = 640, 340
+        self.costSprite.costDisplay(self.price, self.level)
 
 class costImage(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -872,8 +999,83 @@ class healthRegenUpgrade(Upgrade):
         self.image = self.font.render(self.msg, 0, self.color)
         self.rect = self.image.get_rect().move(500, 500)
 
-class playGameButton(pygame.sprite.Sprite):
+class maxManaUpgrade(Upgrade):
+    """ increase max health """
+    pictures = ['maxMana0.png', 'maxMana1.png', 
+                'maxMana2.png', 'maxMana3.png', 
+                'maxMana4.png']
+    price=10
 
+    def __init__(self, owner, costsGroup):
+        super(maxManaUpgrade, self).__init__(owner, costsGroup)
+        self.costSprite = costImage(850, 310)
+        self.costSprite.costDisplay(self.price, self.level)
+        self.costSprite.add(self.costsGroup)
+        self.show()
+        self.rect.topleft = 850, 340
+        
+    def revert(self):
+        self.level=0
+        self.price=10
+        self.show()
+        self.rect.topleft = 850, 340
+
+    def upgrade(self):
+        try:
+            if self.owner.money >= self.price:
+                self.level+=1
+                self.owner.money -= self.price
+                self.price *= 2
+                self.show()
+                self.owner.mana += 1
+                self.owner.maxMana += 1
+                self.rect.topleft = 850, 340
+        except StopIteration:
+            return
+
+    def costDisplay(self):
+        super(maxManaUpgrade, self).costDisplay()
+        self.image = self.font.render(self.msg, 0, self.color)
+        self.rect = self.image.get_rect().move(500, 500)
+
+class manaRegenUpgrade(Upgrade):
+    pictures = ['manaRegen0.png', 'manaRegen1.png', 
+                'manaRegen2.png', 'manaRegen3.png', 
+                'manaRegen4.png']
+    price=5
+    
+    def __init__(self, owner, costsGroup):
+        super(manaRegenUpgrade, self).__init__(owner, costsGroup)
+        self.costSprite = costImage(1060, 310)
+        self.costSprite.costDisplay(self.price, self.level)
+        self.costSprite.add(self.costsGroup)
+        self.show()
+        self.rect.topleft = 1060, 340
+
+    def revert(self):
+        self.level=0
+        self.price=5
+        self.show()
+        self.rect.topleft = 1060, 340
+        
+    def upgrade(self):
+        try:
+            if self.owner.money >= self.price:
+                self.level+=1
+                self.owner.money -= self.price
+                self.price *= 2
+                self.show()
+                self.owner.manaRegen += 1
+                self.rect.topleft = 1060, 340
+        except StopIteration:
+            return
+
+    def costDisplay(self):
+        super(healthRegenUpgrade, self).costDisplay()
+        self.image = self.font.render(self.msg, 0, self.color)
+        self.rect = self.image.get_rect().move(500, 500)
+
+class playGameButton(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('playGameButton.png', 1)
@@ -932,7 +1134,7 @@ def main():
 #play music
    music = os.path.join('data', 'Throwing Fire.wav')
    pygame.mixer.music.load(music)
-   #pygame.mixer.music.play()
+   pygame.mixer.music.play()
 
 #load sound effects
    wilhelm = load_sound('wilhelm.wav')
@@ -962,6 +1164,7 @@ def main():
    splatters = pygame.sprite.Group()
    explosions = pygame.sprite.Group()
    upgrades = pygame.sprite.Group()
+   spells = pygame.sprite.Group()
    costs = pygame.sprite.Group()
    mainMenuButtons = pygame.sprite.Group()
    deathScreenButtons = pygame.sprite.Group()
@@ -984,6 +1187,19 @@ def main():
    upgrades.add(numberOfShots)
    healthRegen=healthRegenUpgrade(player,costs)
    upgrades.add(healthRegen)
+   maxMana=maxManaUpgrade(player,costs)
+   upgrades.add(maxMana)
+   manaRegen=manaRegenUpgrade(player,costs)
+   upgrades.add(manaRegen)
+
+#initialize spells
+   magic=Magic(player,costs)
+   airStrike=AirStrikeMagic(player,costs)
+   spells.add(airStrike)
+   heal=HealMagic(player,costs)
+   spells.add(heal)
+   teleport=TeleportMagic(player,costs)
+   spells.add(teleport)
 
 #initialize groups
    score = Score(player)
@@ -1013,7 +1229,8 @@ def main():
                        spawner=1020
                        fire=0
                        bulletTimer=0
-                       regenTimer=0
+                       healthRegenTimer=0
+                       manaRegenTimer=0
                        pause=0
                        dead=0
                        movex=0
@@ -1023,9 +1240,11 @@ def main():
                        player.revert()
                        maxHealth.revert()
                        refireRate.revert()
-                       healthRegen.revert()
                        movementSpeed.revert()
                        numberOfShots.revert()
+                       healthRegen.revert()
+                       maxMana.revert()
+                       manaRegen.revert()
                        
        screen.blit(mainMenuBackground_surface, (0,0))
        bottomsprites = pygame.sprite.RenderPlain((mainMenuButtons))
@@ -1073,10 +1292,14 @@ def main():
                      movey = 0
 
              #shooting
-             if event.type == MOUSEBUTTONDOWN:
+             if event.type == MOUSEBUTTONDOWN and event.button==1:
                  fire=1
-             if event.type == MOUSEBUTTONUP:
+             elif event.type == MOUSEBUTTONUP and event.button==1:
                  fire=0
+
+             #magic
+             if event.type == MOUSEBUTTONDOWN and event.button==3:
+                 magic.chooseSpell(airStrike,heal,teleport,crosshair,player,score,money,health,mana,enemy,enemies,splatters,explosions)
                      
 
         #spawn enemies
@@ -1112,10 +1335,16 @@ def main():
                   bullet.fire(player,bullets,crosshair)
 
         #regenerate health
-          regenTimer+=player.healthRegen
-          if regenTimer>=3600 and player.health<player.maxHealth:
+          healthRegenTimer+=player.healthRegen
+          if healthRegenTimer>=3600 and player.health<player.maxHealth:
               health.update(1)
-              regenTimer=0
+              healthRegenTimer=0
+
+        #regenerate mana
+          manaRegenTimer+=player.manaRegen
+          if manaRegenTimer>=1800 and player.mana<player.maxMana:
+              mana.update(1)
+              manaRegenTimer=0
            
        #update everything
           enemies.update(player.rect.centerx, player.rect.centery, enemyBullets, second, enemies)
@@ -1152,12 +1381,15 @@ def main():
                      for upgrade in upgrades:
                         if pygame.sprite.collide_rect(crosshair, upgrade):
                             upgrade.upgrade()
+                     for magic in spells:
+                        if pygame.sprite.collide_rect(crosshair, magic):
+                            magic.equip()
+                            
              health.show()
-             money.show()
              score.show()
              money.show()
              screen.blit(pauseBackground_surface, (0,0))
-             bottomsprites = pygame.sprite.RenderPlain((upgrades, costs, score, money, health, mana))
+             bottomsprites = pygame.sprite.RenderPlain((upgrades, spells, costs, score, money, health, mana))
              bottomsprites.draw(screen)
              topSprite = pygame.sprite.RenderPlain((crosshair))
              topSprite.draw(screen)
