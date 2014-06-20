@@ -269,7 +269,7 @@ class Enemy(pygame.sprite.Sprite):
     def randomEnemy(self):
         """ returns a new (randomly, based on the level) enemy object at (x, y) """
         
-        maxEnemy=103
+        maxEnemy=78
         maxSpawn=600
         maxPosition=6
         
@@ -289,27 +289,9 @@ class Enemy(pygame.sprite.Sprite):
             x,y = 600+spawn,600
         elif position==6:#Left
             x,y = 0,spawn
-
-        if enemy<=25:
-            return Zombie(x, y)
-        elif enemy<=50:
-            return Runner(x, y)
-        elif enemy<=60:
-            return Arrow(x,y)
-        elif enemy<=70:
-            return BombDude(x,y)
-        elif enemy<=72:
-            return PregnantBitch(x,y)
-        elif enemy<=74:
-            return BlobLarge(x,y)
-        elif enemy<=75:
-            return BulletTurret(x,y)
-        elif enemy<=76:
-            return RocketTurret(x,y)
-        elif enemy<=78:
-            return Seeker(x,y)
-        elif enemy<=maxEnemy:
-            return Charger(x,y)
+             
+        if enemy<=maxEnemy:
+            return RocketTurret(x, y)
         else:
             return 0
 
@@ -353,18 +335,6 @@ class Runner(Enemy):
     attackSpeed=20
     attackPower=1
     attackTimer=0
-    
-    def __init__(self,spawnx,spawny):
-        pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image('runner.png', -1)
-        self.rect.centerx, self.rect.centery = spawnx, spawny
-        
-class Charger(Enemy):
-    health = 1
-    speed = 7
-    attackSpeed=20
-    attackPower=1
-    attackTimer=0
     lungeDistance=200
     lungeAngle=0
     lungeSpeed=20
@@ -373,7 +343,7 @@ class Charger(Enemy):
     lungeAttack=0
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
-        self.image, self.rect = load_image('charger.png', -1)
+        self.image, self.rect = load_image('runner.png', -1)
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
     def update(self, playerx, playery, enemyBullets, enemies, health):
@@ -794,7 +764,6 @@ class Rocket (Enemy):
             enemy.die()
     def die(self):
         self.kill()
-
 
 class EnemyBullet(pygame.sprite.Sprite):
     penetration = 1

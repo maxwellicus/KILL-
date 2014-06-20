@@ -1,0 +1,20 @@
+    def update(self, playerx, playery, enemyBullets, enemies, health):
+        if self.start==1:
+            self.playerAngle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
+            self.enemyAngle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
+            self.start=0
+        if self.collide==0:
+            self.playerAngle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
+            if self.playerAngle>self.enemyAngle:
+                self.enemyAngle+=self.turnRadius
+            elif self.playerAngle<self.enemyAngle:
+                self.enemyAngle-=self.turnRadius
+            self.movex = self.speed*math.cos(self.enemyAngle*math.pi/180)
+            self.movey = self.speed*math.sin(self.enemyAngle*math.pi/180)*-1
+            self.rect = self.rect.move(self.movex,self.movey)
+        elif self.collide==1 and self.attackTimer==0:
+            self.attack(health)
+            self.attackTimer=self.attackSpeed
+        if self.attackTimer>0:
+            self.attackTimer-=1
+        self.collide=0
