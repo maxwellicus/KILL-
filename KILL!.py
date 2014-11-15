@@ -3,6 +3,8 @@ from pygame.locals import *
 import math
 import random, os.path
 
+#check
+
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
 
