@@ -413,6 +413,7 @@ class BombDude(Enemy):
     """ basic Runner enemy """
     health = 1
     speed = 2
+    attackPower = 1
     def __init__(self,spawnx,spawny):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = load_image('bombDude.png', -1)
@@ -466,7 +467,7 @@ class BombDude(Enemy):
     def collision(self,enemy,enemies,player,score,money,health,splatters,explosions):
         ouch = load_sound('ouch.wav')
         enemy.kill()
-        health.update(-attackPower)
+        health.update(-self.attackPower)
         explosions.add(Explosion(enemy.rect.centerx, enemy.rect.centery,player,score,money,health,enemy,enemies,splatters,explosions))
         ouch.play()
     
@@ -701,7 +702,7 @@ class BlobSmall(Enemy):
             self.rect = self.rect.move(self.movex,self.movey)
         elif self.collide==1 and self.attackTimer==0:
             self.attack(health)
-            self.die(enemy,enemies,player,score,money,health,splatters,explosions)
+            #self.die(enemy,enemies,player,score,money,health,splatters,explosions)
         self.collide=0
 
 class BulletTurret(Enemy):
@@ -1989,7 +1990,7 @@ def main():
                  equippedSpell.show()
                  screen.blit(pauseBackground_surface, (0,0))
                  bottomsprites = pygame.sprite.RenderPlain((upgrades,upgradeCosts,goBack))
-                 bottomspritesdraw(screen)
+                 bottomsprites.draw(screen)
                  middlesprites = pygame.sprite.RenderPlain((score, money, health, mana, ammo, reloadGun, equippedWeapon, equippedSpell))
                  middlesprites.draw(screen)
                  topSprite = pygame.sprite.RenderPlain((crosshair))
