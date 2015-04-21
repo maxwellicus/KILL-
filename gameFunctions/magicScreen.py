@@ -60,20 +60,50 @@ from buttons import magicScreenButton
 from buttons import weaponScreenButton
 from buttons import backButton
 
-from mainMenuScreen import mainMenuScreen
-from gameScreen import gameScreen
-from pauseScreen import pauseScreen
-from upgradeScreen import upgradeScreen
-from weaponScreen import weaponScreen
-from magicScreen import magicScreen
-from deathScreen import deathScreen
+def magicScreen():
 
-def main():
-
-	#initialize everything
 	from initialize import *
+	magicPause=1
 
-	#Main Menu Loop
-	mainMenuScreen()
+	#Magic Screen
+	while magicPause==1:
+		clock.tick(60)
+		crosshair.update()
+     
+		#controls
+		for event in pygame.event.get():
+			#quit
+			if event.type == QUIT:
+				pygame.quit()
+			if event.type == KEYDOWN:
+				if event.key == K_p or event.key == K_ESCAPE or event.key == K_SPACE:
+					magicPause=0
+					pause=0
+			#click buttons
+			elif event.type == MOUSEBUTTONDOWN:
+				#equip spell
+				for magic in spells:
+					if pygame.sprite.collide_rect(crosshair, magic):
+						magic.click()
+				#go back
+				if pygame.sprite.collide_rect(crosshair, goBack):
+					magicPause=0
 
-if __name__ == '__main__': main()
+		#show everything
+		for magic in spells:
+			magic.show()
+		health.show()
+		score.show()
+		money.show()
+		ammo.show(pistol,shotGun,machineGun)
+		reloadGun.show(reloadGun.timer)
+		equippedWeapon.show()
+		equippedSpell.show()
+		screen.blit(pauseBackground_surface, (0,0))
+		bottomsprites = pygame.sprite.RenderPlain((spells,magicCosts,goBack))
+		bottomsprites.draw(screen)
+		middlesprites = pygame.sprite.RenderPlain((score, money, health, mana, ammo, reloadGun, equippedWeapon, equippedSpell))
+		middlesprites.draw(screen)
+		topSprite = pygame.sprite.RenderPlain((crosshair))
+		topSprite.draw(screen)
+		pygame.display.flip()

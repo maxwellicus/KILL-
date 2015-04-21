@@ -23,14 +23,14 @@ class Player(pygame.sprite.Sprite):
 	def revert(self):
 		self.health = 100
 		self.mana = 3
-		self.money = 0
+		self.money = 1000
 		self.score = 0
 		self.maxHealth = 100
 		self.maxMana = 5
 		self.speed = 5
 		self.refireRate = 2
 		self.numberOfShots = 1
-		self.healthRegen = 1
+		self.healthRegen = 60
 		self.manaRegen = 1
 		self.spell = 3
 		self.rect.centerx, self.rect.centery = 600, 300

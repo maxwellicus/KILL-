@@ -56,8 +56,8 @@ class maxHealthUpgrade(Upgrade):
                 self.owner.money -= self.price
                 self.price *= 2
                 self.show()
-                self.owner.health += 1
-                self.owner.maxHealth += 1
+                self.owner.health += 25
+                self.owner.maxHealth += 25
                 self.rect.topleft = 10, 40
         except StopIteration:
             return
@@ -208,7 +208,7 @@ class healthRegenUpgrade(Upgrade):
                 self.owner.money -= self.price
                 self.price *= 2
                 self.show()
-                self.owner.healthRegen += 1
+                self.owner.healthRegen = self.owner.healthRegen / 2
                 self.rect.topleft = 850, 40
         except StopIteration:
             return

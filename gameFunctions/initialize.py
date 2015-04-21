@@ -60,134 +60,132 @@ from buttons import magicScreenButton
 from buttons import weaponScreenButton
 from buttons import backButton
 
-def initialize():
+#initializing
+pygame.init()
+window = pygame.display.set_mode((1200, 600))
+pygame.display.set_caption('KILL!')
+screen = pygame.display.get_surface()
+from pygame.locals import *
+flags = FULLSCREEN | DOUBLEBUF
+#screen = pygame.display.set_mode(resolution, flags, bpp)
+pygame.mouse.set_visible(0)
 
-	#initializing
-	pygame.init()
-	window = pygame.display.set_mode((1200, 600))
-	pygame.display.set_caption('KILL!')
-	screen = pygame.display.get_surface()
-	from pygame.locals import *
-	flags = FULLSCREEN | DOUBLEBUF
-	#screen = pygame.display.set_mode(resolution, flags, bpp)
-	pygame.mouse.set_visible(0)
+#Create Backgrounds
+background = os.path.join('data', 'background.png')
+background_surface = pygame.image.load(background)
+mainMenuBackground = os.path.join('data', 'mainMenu.png')
+mainMenuBackground_surface = pygame.image.load(mainMenuBackground)
+pauseBackground = os.path.join('data', 'pause.png')
+pauseBackground_surface = pygame.image.load(pauseBackground)
 
-	#Create Backgrounds
-	background = os.path.join('data', 'background.png')
-	background_surface = pygame.image.load(background)
-	mainMenuBackground = os.path.join('data', 'mainMenu.png')
-	mainMenuBackground_surface = pygame.image.load(mainMenuBackground)
-	pauseBackground = os.path.join('data', 'pause.png')
-	pauseBackground_surface = pygame.image.load(pauseBackground)
+#Display Background
+screen.blit(background_surface, (0, 0))
+pygame.display.flip()
 
-	#Display Background
-	screen.blit(background_surface, (0, 0))
-	pygame.display.flip()
+#play music
+music = os.path.join('data', 'Throwing Fire.wav')
+pygame.mixer.music.load(music)
+#pygame.mixer.music.play()
 
-	#play music
-	music = os.path.join('data', 'Throwing Fire.wav')
-	pygame.mixer.music.load(music)
-	#pygame.mixer.music.play()
+#load sound effects
+wilhelm = load_sound('wilhelm.wav')
 
-	#load sound effects
-	wilhelm = load_sound('wilhelm.wav')
+#prepare preparations
+spawnx, spawny = -100, -100
+playerx, playery = -10, -10
+crossx, crossy = -20, -20
+splatterx, splattery = -100, -100
 
-	#prepare preparations
-	spawnx, spawny = -100, -100
-	playerx, playery = -10, -10
-	crossx, crossy = -20, -20
-	splatterx, splattery = -100, -100
+#Prepare Game Objects
+clock = pygame.time.Clock()
+crosshair = Crosshair()
+enemy = Enemy()
 
-	#Prepare Game Objects
-	clock = pygame.time.Clock()
-	crosshair = Crosshair()
-	enemy = Enemy()
+#initialize player
+player_file_name = os.path.join("data", "smiley.png")
+player_surface = pygame.image.load(player_file_name)
+screen.blit(player_surface, (0,0))
+movex, movey = 0,0
+player = Player()
 
-	#initialize player
-	player_file_name = os.path.join("data", "smiley.png")
-	player_surface = pygame.image.load(player_file_name)
-	screen.blit(player_surface, (0,0))
-	movex, movey = 0,0
-	player = Player()
+#Initialize groups
+bullets = pygame.sprite.Group()
+enemyBullets = pygame.sprite.Group()
+enemies = pygame.sprite.Group()
+splatters = pygame.sprite.Group()
+explosions = pygame.sprite.Group()
+upgrades = pygame.sprite.Group()
+spells = pygame.sprite.Group()
+weapons = pygame.sprite.Group()
+upgradeCosts = pygame.sprite.Group()
+magicCosts = pygame.sprite.Group()
+weaponCosts = pygame.sprite.Group()
+mainMenuButtons = pygame.sprite.Group()
+pauseScreenButtons = pygame.sprite.Group()
+deathScreenButtons = pygame.sprite.Group()
 
-	#Initialize groups
-	bullets = pygame.sprite.Group()
-	enemyBullets = pygame.sprite.Group()
-	enemies = pygame.sprite.Group()
-	splatters = pygame.sprite.Group()
-	explosions = pygame.sprite.Group()
-	upgrades = pygame.sprite.Group()
-	spells = pygame.sprite.Group()
-	weapons = pygame.sprite.Group()
-	upgradeCosts = pygame.sprite.Group()
-	magicCosts = pygame.sprite.Group()
-	weaponCosts = pygame.sprite.Group()
-	mainMenuButtons = pygame.sprite.Group()
-	pauseScreenButtons = pygame.sprite.Group()
-	deathScreenButtons = pygame.sprite.Group()
+#initialize buttons
+playGame=playGameButton()
+mainMenuButtons.add(playGame)
+exitGame=exitButton()
+mainMenuButtons.add(exitGame)
+deathScreenButtons.add(exitGame)
+mainMenu=mainMenuButton()
+deathScreenButtons.add(mainMenu)
+upgradeButton=upgradeScreenButton()
+weaponButton=weaponScreenButton()
+magicButton=magicScreenButton()
+pauseScreenButtons.add(upgradeButton)
+pauseScreenButtons.add(weaponButton)
+pauseScreenButtons.add(magicButton)
+goBack=backButton()
+exitGame=exitButton()
 
-	#initialize buttons
-	playGame=playGameButton()
-	mainMenuButtons.add(playGame)
-	exitGame=exitButton()
-	mainMenuButtons.add(exitGame)
-	deathScreenButtons.add(exitGame)
-	mainMenu=mainMenuButton()
-	deathScreenButtons.add(mainMenu)
-	upgradeButton=upgradeScreenButton()
-	weaponButton=weaponScreenButton()
-	magicButton=magicScreenButton()
-	pauseScreenButtons.add(upgradeButton)
-	pauseScreenButtons.add(weaponButton)
-	pauseScreenButtons.add(magicButton)
-	goBack=backButton()
-	exitGame=exitButton()
+#initialize upgrades
+upgrade=Upgrade(player,upgradeCosts)
+maxHealth=maxHealthUpgrade(player,upgradeCosts)
+upgrades.add(maxHealth)
+refireRate=refireRateUpgrade(player,upgradeCosts)
+upgrades.add(refireRate)
+movementSpeed=movementSpeedUpgrade(player,upgradeCosts)
+upgrades.add(movementSpeed)
+numberOfShots=numberOfShotsUpgrade(player,upgradeCosts)
+upgrades.add(numberOfShots)
+healthRegen=healthRegenUpgrade(player,upgradeCosts)
+upgrades.add(healthRegen)
+maxMana=maxManaUpgrade(player,upgradeCosts)
+upgrades.add(maxMana)
+manaRegen=manaRegenUpgrade(player,upgradeCosts)
+upgrades.add(manaRegen)
 
-	#initialize upgrades
-	upgrade=Upgrade(player,upgradeCosts)
-	maxHealth=maxHealthUpgrade(player,upgradeCosts)
-	upgrades.add(maxHealth)
-	refireRate=refireRateUpgrade(player,upgradeCosts)
-	upgrades.add(refireRate)
-	movementSpeed=movementSpeedUpgrade(player,upgradeCosts)
-	upgrades.add(movementSpeed)
-	numberOfShots=numberOfShotsUpgrade(player,upgradeCosts)
-	upgrades.add(numberOfShots)
-	healthRegen=healthRegenUpgrade(player,upgradeCosts)
-	upgrades.add(healthRegen)
-	maxMana=maxManaUpgrade(player,upgradeCosts)
-	upgrades.add(maxMana)
-	manaRegen=manaRegenUpgrade(player,upgradeCosts)
-	upgrades.add(manaRegen)
+#initialize spells
+magic=Magic(player,magicCosts)
+airStrike=AirStrikeMagic(player,magicCosts)
+spells.add(airStrike)
+heal=HealMagic(player,magicCosts)
+spells.add(heal)
+teleport=TeleportMagic(player,magicCosts)
+spells.add(teleport)
 
-	#initialize spells
-	magic=Magic(player,magicCosts)
-	airStrike=AirStrikeMagic(player,magicCosts)
-	spells.add(airStrike)
-	heal=HealMagic(player,magicCosts)
-	spells.add(heal)
-	teleport=TeleportMagic(player,magicCosts)
-	spells.add(teleport)
+#initialize weapons
+weapon=Weapon(player,weaponCosts)
+pistol=PistolWeapon(player,weaponCosts)
+weapons.add(pistol)
+machineGun=MachineGunWeapon(player,weaponCosts)
+weapons.add(machineGun)
+shotGun=ShotGunWeapon(player,weaponCosts)
+weapons.add(shotGun)
 
-	#initialize weapons
-	weapon=Weapon(player,weaponCosts)
-	pistol=PistolWeapon(player,weaponCosts)
-	weapons.add(pistol)
-	machineGun=MachineGunWeapon(player,weaponCosts)
-	weapons.add(machineGun)
-	shotGun=ShotGunWeapon(player,weaponCosts)
-	weapons.add(shotGun)
+#initialize HUD
+score = Score(player)
+money = Money(player)
+health = Health(player)
+mana = Mana(player)
+ammo = Ammo(player)
+reloadGun = Reload(player)
+equippedWeapon = EquippedWeapon(player)
+equippedSpell = EquippedSpell(player)
 
-	#initialize HUD
-	score = Score(player)
-	money = Money(player)
-	health = Health(player)
-	mana = Mana(player)
-	ammo = Ammo(player)
-	reloadGun = Reload(player)
-	equippedWeapon = EquippedWeapon(player)
-	equippedSpell = EquippedSpell(player)
-
-	#inititialize other groups
-	bullet = Bullet(-100,-100,-100,-100,1,1)
-	enemyBullet = EnemyBullet(-100,-100,-100,-100,1)
+#inititialize other groups
+bullet = Bullet(-100,-100,-100,-100,1,1)
+enemyBullet = EnemyBullet(-100,-100,-100,-100,1)

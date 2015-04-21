@@ -60,7 +60,6 @@ from buttons import magicScreenButton
 from buttons import weaponScreenButton
 from buttons import backButton
 
-from mainMenuScreen import mainMenuScreen
 from gameScreen import gameScreen
 from pauseScreen import pauseScreen
 from upgradeScreen import upgradeScreen
@@ -68,12 +67,27 @@ from weaponScreen import weaponScreen
 from magicScreen import magicScreen
 from deathScreen import deathScreen
 
-def main():
+def mainMenuScreen():
 
-	#initialize everything
-	from initialize import *
+    from initialize import *
 
-	#Main Menu Loop
-	mainMenuScreen()
-
-if __name__ == '__main__': main()
+    game=0
+    while 1:
+        clock.tick(60)
+        crosshair.update()
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+            elif event.type == MOUSEBUTTONDOWN:
+                for button in mainMenuButtons:
+                    if pygame.sprite.collide_rect(crosshair, exitGame):
+                        pygame.quit()
+                    if pygame.sprite.collide_rect(crosshair, playGame):
+                        gameScreen()
+                       
+        screen.blit(mainMenuBackground_surface, (0,0))
+        bottomsprites = pygame.sprite.RenderPlain((mainMenuButtons))
+        bottomsprites.draw(screen)
+        topSprite = pygame.sprite.RenderPlain((crosshair))
+        topSprite.draw(screen)
+        pygame.display.flip()

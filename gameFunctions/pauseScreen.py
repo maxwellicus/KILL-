@@ -60,20 +60,61 @@ from buttons import magicScreenButton
 from buttons import weaponScreenButton
 from buttons import backButton
 
-from mainMenuScreen import mainMenuScreen
-from gameScreen import gameScreen
-from pauseScreen import pauseScreen
 from upgradeScreen import upgradeScreen
 from weaponScreen import weaponScreen
 from magicScreen import magicScreen
-from deathScreen import deathScreen
 
-def main():
+def pauseScreen():
 
-	#initialize everything
 	from initialize import *
 
-	#Main Menu Loop
-	mainMenuScreen()
+	pause=1
 
-if __name__ == '__main__': main()
+	while pause==1:
+		clock.tick(60)
+		crosshair.update()
+     
+	#controls
+		for event in pygame.event.get():
+         	#quit
+			if event.type == QUIT:
+				pygame.quit()
+			if event.type == KEYDOWN:
+				if event.key == K_p or event.key == K_ESCAPE or event.key == K_SPACE:
+					pause=0
+			elif event.type == MOUSEBUTTONDOWN:
+             	#click buttons
+				for pauseScreenButton in pauseScreenButtons:
+					if pygame.sprite.collide_rect(crosshair, pauseScreenButton):
+                    	#upgrade screen
+						if pygame.sprite.collide_rect(crosshair,upgradeButton):
+							upgradeScreen()
+							break
+                    	#magic screen
+						elif pygame.sprite.collide_rect(crosshair,magicButton):
+							magicScreen()
+							break
+                    	#weapon screen
+						elif pygame.sprite.collide_rect(crosshair,weaponButton):
+							weaponScreen()
+							break
+                	#go back
+					if pygame.sprite.collide_rect(crosshair,goBack):
+						pause=0
+
+	#show everything
+		health.show()
+		score.show()
+		money.show()
+		ammo.show(pistol,shotGun,machineGun)
+		reloadGun.show(reloadGun.timer)
+		equippedWeapon.show()
+		equippedSpell.show()
+		screen.blit(pauseBackground_surface, (0,0))
+		bottomsprites = pygame.sprite.RenderPlain((pauseScreenButtons,goBack))
+		bottomsprites.draw(screen)
+		middlesprites = pygame.sprite.RenderPlain((score, money, health, mana, ammo, reloadGun, equippedWeapon, equippedSpell))
+		middlesprites.draw(screen)
+		topSprite = pygame.sprite.RenderPlain((crosshair))
+		topSprite.draw(screen)
+		pygame.display.flip()

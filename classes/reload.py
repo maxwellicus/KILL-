@@ -14,6 +14,8 @@ from findAngle import findAngle
 from findDistance import findDistance
 
 class Reload(pygame.sprite.Sprite):
+
+    timer=-1
 	
     def __init__(self, owner):
         self.owner = owner

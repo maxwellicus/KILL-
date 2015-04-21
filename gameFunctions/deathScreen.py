@@ -60,20 +60,53 @@ from buttons import magicScreenButton
 from buttons import weaponScreenButton
 from buttons import backButton
 
-from mainMenuScreen import mainMenuScreen
-from gameScreen import gameScreen
 from pauseScreen import pauseScreen
 from upgradeScreen import upgradeScreen
 from weaponScreen import weaponScreen
 from magicScreen import magicScreen
-from deathScreen import deathScreen
 
-def main():
+def deathScreen():
 
-	#initialize everything
 	from initialize import *
 
-	#Main Menu Loop
-	mainMenuScreen()
+	dead=1
 
-if __name__ == '__main__': main()
+	while dead==1:
+		clock.tick(60)
+		crosshair.update()
+     
+		#show everything
+		score.post()
+		money.post()
+		health.post()
+		mana.post()
+		bottomSprites = pygame.sprite.RenderPlain((bullets,enemies,splatters,explosions))
+		mediumSprites = pygame.sprite.RenderPlain((player))
+		topSprites = pygame.sprite.RenderPlain((score,money,health,mana,deathScreenButtons))
+		crosshairSprite = pygame.sprite.RenderPlain((crosshair))
+		screen.blit(background_surface, (0,0))
+		bottomSprites.draw(screen)
+		mediumSprites.draw(screen)
+		topSprites.draw(screen)
+		crosshairSprite.draw(screen)
+		pygame.display.flip()
+
+		#controls
+		for event in pygame.event.get():
+			#quit
+			if event.type == QUIT:
+				pygame.quit()
+			elif event.type == MOUSEBUTTONDOWN:
+				for button in deathScreenButtons:
+					if pygame.sprite.collide_rect(crosshair, exitGame):
+						pygame.quit()
+					#main menu
+					elif pygame.sprite.collide_rect(crosshair, mainMenu):
+						dead=0
+						game=0
+					#empty groups
+						bullets.empty()
+						enemies.empty()
+						splatters.empty()
+						explosions.empty()
+						enemyBullets.empty()

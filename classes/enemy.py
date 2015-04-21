@@ -15,6 +15,7 @@ from findAngle import findAngle
 from findDistance import findDistance
 from splatter import Splatter
 from explosion import Explosion
+from bullet import Bullet
 
 class Enemy(pygame.sprite.Sprite):
     """ Generic enemy class, all enemies will inherit from Enemy """
@@ -27,7 +28,7 @@ class Enemy(pygame.sprite.Sprite):
     collide=0
     distance=999
     
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.distance = findDistance(self.rect.centerx, self.rect.centery, playerx, playery)
         if self.collide==0:
             angle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
@@ -106,7 +107,7 @@ class Enemy(pygame.sprite.Sprite):
             enemy.die(enemy,enemies,player,score,money,health,splatters,explosions)
 
     def die(self,enemy,enemies,player,score,money,health,splatters,explosions):
-        enemy.kill()
+        self.kill()
         score.update(1)
         money.update(1)
         splatters.add(Splatter(enemy.rect.centerx, enemy.rect.centery))
@@ -163,7 +164,7 @@ class Charger(Enemy):
         self.image, self.rect = load_image('charger.png', -1)
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.distance = findDistance(self.rect.centerx, self.rect.centery, playerx, playery)
         angle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
         if self.lungeTimer==0 and self.attackTimer==0:
@@ -233,7 +234,7 @@ class BombDude(Enemy):
             elif move==1:
                 self.movex=1
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.rect = self.rect.move(self.movex*self.speed,self.movey*self.speed)
         if self.rect.centerx<=0:
             self.movex=1
@@ -285,7 +286,7 @@ class Arrow(Enemy):
             self.movex=0
             self.movey=-1
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.rect = self.rect.move(self.movex*self.speed,self.movey*self.speed)
         if self.rect.centerx<=0:
             self.image=pygame.transform.flip(self.image,1,0)
@@ -333,7 +334,7 @@ class Seeker(Enemy):
         health.update(-self.attackPower)
         ouch.play()
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.movex=0
         self.movey=0
         if self.scanTimer>0:
@@ -383,16 +384,16 @@ class PregnantBitch(Enemy):
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
     def die(self,enemy,enemies,player,score,money,health,splatters,explosions):
-        enemy.kill()
+        self.kill()
         score.update(1)
         money.update(1)
-        splatters.add(Splatter(enemy.rect.centerx, enemy.rect.centery))
+        splatters.add(Splatter(self.rect.centerx, self.rect.centery))
         cry = load_sound('cry.wav')
         cry.play()
         for babies in range (1,random.randint(1,3)):
-            enemies.add(Baby(enemy.rect.centerx+random.randint(-100,100), enemy.rect.centery+random.randint(-100,100)))
+            enemies.add(Baby(self.rect.centerx+random.randint(-100,100), self.rect.centery+random.randint(-100,100)))
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         if self.collide==0:
             angle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
             self.movex = self.speed*math.cos(angle*math.pi/180)
@@ -425,14 +426,14 @@ class BlobLarge(Enemy):
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
     def die(self,enemy,enemies,player,score,money,health,splatters,explosions):
-        enemy.kill()
+        self.kill()
         score.update(1)
         money.update(1)
-        splatters.add(Splatter(enemy.rect.centerx, enemy.rect.centery))
+        splatters.add(Splatter(self.rect.centerx, self.rect.centery))
         for blobs in range (1,3):
-            enemies.add(BlobMedium(enemy.rect.centerx+random.randint(-100,100), enemy.rect.centery+random.randint(-100,100)))
+            enemies.add(BlobMedium(self.rect.centerx+random.randint(-100,100), self.rect.centery+random.randint(-100,100)))
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         if self.collide==0:
             angle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
             self.movex = self.speed*math.cos(angle*math.pi/180)
@@ -453,14 +454,14 @@ class BlobMedium(Enemy):
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
     def die(self,enemy,enemies,player,score,money,health,splatters,explosions):
-        enemy.kill()
+        self.kill()
         score.update(1)
         money.update(1)
-        splatters.add(Splatter(enemy.rect.centerx, enemy.rect.centery))
+        splatters.add(Splatter(self.rect.centerx, self.rect.centery))
         for blobs in range (1,3):
-            enemies.add(BlobSmall(enemy.rect.centerx+random.randint(-50,50), enemy.rect.centery+random.randint(-50,50)))
+            enemies.add(BlobSmall(self.rect.centerx+random.randint(-50,50), self.rect.centery+random.randint(-50,50)))
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         if self.collide==0:
             angle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
             self.movex = self.speed*math.cos(angle*math.pi/180)
@@ -481,7 +482,7 @@ class BlobSmall(Enemy):
         self.image, self.rect = load_image('BlobSmall.png', -1)
         self.rect.centerx, self.rect.centery = spawnx, spawny
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         if self.collide==0:
             angle = findAngle(self.rect.centerx, self.rect.centery, playerx, playery)
             self.movex = self.speed*math.cos(angle*math.pi/180)
@@ -489,7 +490,7 @@ class BlobSmall(Enemy):
             self.rect = self.rect.move(self.movex,self.movey)
         elif self.collide==1 and self.attackTimer==0:
             self.attack(health)
-            #self.die(enemy,enemies,player,score,money,health,splatters,explosions)
+            self.die(enemy,enemies,player,score,money,health,splatters,explosions)
         self.collide=0
 
 class BulletTurret(Enemy):
@@ -513,7 +514,7 @@ class BulletTurret(Enemy):
         elif spawny==600:
             self.rect.centerx, self.rect.centery = spawnx, spawny-100
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.bulletTimer-=1
         if self.bulletTimer==0:
             gunshot = load_sound('gunshot.wav')
@@ -544,7 +545,7 @@ class RocketTurret(Enemy):
         elif spawny==600:
             self.rect.centerx, self.rect.centery = spawnx, spawny-100
 
-    def update(self, playerx, playery, enemyBullets, enemies, health):
+    def update(self, playerx, playery, enemyBullets, enemies, health, enemy, player, score, money, splatters, explosions):
         self.bulletTimer-=1
         if self.bulletTimer==0:
             gunshot = load_sound('gunshot.wav')
@@ -580,5 +581,6 @@ class Rocket (Enemy):
         enemy.health -= damage
         if self.health <= 0:
             enemy.die()
+            
     def die(self):
         self.kill()
